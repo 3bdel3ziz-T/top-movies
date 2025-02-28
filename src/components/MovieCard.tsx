@@ -17,7 +17,7 @@ export type MovieInfo = {
 
 function MovieCard({
 	movie: {
-		id,
+		// id,
 		title,
 		poster_path,
 		vote_average,

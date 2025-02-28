@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Search from "./components/Search";
 import ErrorMsg from "./components/ErrorMsg";
-import Loading from "./components/Loading/Loading";
+import Loading from "./components/Loading";
 import MovieCard, { MovieInfo } from "./components/MovieCard";
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
@@ -16,36 +16,50 @@ const API_OPTIONS = {
 
 function App() {
 	const [searchTerm, setSearchTerm] = useState<string>("");
-	const [errorMsg, setErrorMsg] = useState<string>("");
+	const [errorMsg, setErrorMsg] = useState<{ title: string; body: string }>({
+		title: "",
+		body: "",
+	});
+
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [moviesList, setMoviesList] = useState<MovieInfo[]>([]);
 
-	async function fetchMovies(): Promise<void> {
+	async function fetchMovies(query?: string): Promise<void> {
+		setIsLoading(true);
 		try {
-			setIsLoading(true);
+			let endPoint: string;
 
-			const endPoint: string = `${API_BASE_URL}/discover/movie?sort_by=popularity.desc&include_adult=false&include_video=false&page=1`;
+			if (query)
+				endPoint = `${API_BASE_URL}/search/movie?query=${query}&include_adult=false&language=en-US&page=1&include_video=false`;
+			else
+				endPoint = `${API_BASE_URL}/discover/movie?sort_by=popularity.desc&include_adult=false&include_video=false&page=1`;
 
 			const response = await fetch(endPoint, API_OPTIONS);
 			const data = await response.json();
 			if (response.ok && response.status === 200) {
 				setMoviesList(data.results);
-			} else setErrorMsg(data.status_message);
+			} else
+				setErrorMsg({
+					title: "something went wrong",
+					body: data.status_message,
+				});
 		} catch (error) {
-			setErrorMsg((error as string) || "Something went wrong!");
+			setErrorMsg({
+				title: "something went wrong",
+				body: (error as string) || "Something went wrong!",
+			});
 		} finally {
 			setIsLoading(false);
 		}
 	}
 	useEffect(() => {
-		fetchMovies();
-	}, []);
+		fetchMovies(searchTerm);
+	}, [searchTerm]);
 
 	return (
 		<main>
-			<Loading isLoading={isLoading} />
 			<div className="pattern">
-				<div className="wrapper">
+				<div className=" wrapper">
 					<header>
 						<img src="./hero.png" alt="Hero Banner" />
 						<h1>
@@ -55,15 +69,15 @@ function App() {
 
 						<Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 					</header>{" "}
+					<ErrorMsg title={errorMsg.title} body={errorMsg.body} />
+					<h2 className="ml-10">All Movies</h2>
+					<section className="all-movies">
+						<Loading isLoading={isLoading} />
+						{moviesList.map((movie: MovieInfo) => (
+							<MovieCard key={movie.id} movie={movie as MovieInfo} />
+						))}
+					</section>
 				</div>
-				<ErrorMsg error={errorMsg} />
-				<section className="all-movies  ">
-					{moviesList.map((movie: MovieInfo) => (
-						<div className="card" key={movie.id}>
-							<MovieCard movie={movie as MovieInfo} />
-						</div>
-					))}
-				</section>
 			</div>
 		</main>
 	);
