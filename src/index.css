@@ -5,6 +5,8 @@
 
 @theme {
 	--color-primary: #030014;
+	--color-primary-2: #0f0d23;
+	--color-secondary: #baa1ff;
 
 	--color-light-100: #cecefb;
 	--color-light-200: #a8b5db;
@@ -96,18 +98,21 @@
 	}
 
 	.search {
-		@apply w-full bg-light-100/5 px-4 py-3 rounded-lg mt-10 max-w-3xl mx-auto;
+		@apply w-full relative max-w-3xl mt-10 mx-auto;
 
-		& div {
-			@apply relative flex items-center;
-		}
+		& .search-container {
+			@apply h-12 flex flex-row gap-4 justify-center items-center;
+		}	
 
 		& img {
-			@apply absolute left-2 h-5 w-5;
+			@apply absolute bottom-[0.8rem] left-3 h-5 w-5;
 		}
 
 		& input {
-			@apply w-full bg-transparent py-2 sm:pr-10 pl-10 text-base text-gray-200 placeholder-light-200 outline-hidden;
+			@apply bg-light-100/5 px-4 py-3 rounded-lg w-full h-full sm:pr-10 pl-10 text-base text-gray-200 placeholder-light-200 outline-hidden border border-transparent focus:border-secondary duration-150 caret-secondary;
+		}
+		& button {
+			@apply bg-light-100/5 w-12 h-12 rounded-lg flex items-center justify-center border active:scale-95 duration-150 border-transparent hover:border-secondary fill-secondary cursor-pointer;
 		}
 	}
 
@@ -159,8 +164,8 @@
 @utility text-gradient {
 	@apply bg-linear-to-r from-[#D6C7FF] to-[#AB8BFF] bg-clip-text text-transparent;
 }
-@utility overlay {
-	@apply bg-black/25 flex items-center justify-center fixed z-50 top-0 left-0 w-full h-full;
+@utility backLay {
+	@apply bg-black/25 flex items-center justify-center fixed z-50 top-0 left-0 w-dvw h-dvh;
 }
 
 @utility fancy-text {
@@ -176,4 +181,112 @@
 	&::-webkit-scrollbar {
 		display: none;
 	}
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+	display: none;
+}
+.scrollbar-hide {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+body,
+html {
+	height: 100%;
+}
+.content-container {
+	overflow-y: auto;
+}
+.backdrop-image {
+	background-size: cover;
+	background-position: center;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	opacity: 0.2;
+	z-index: 0;
+}
+.movie-card {
+	transition: all 0.3s ease;
+}
+.movie-card:hover {
+	transform: translateY(-5px);
+	box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+.movie-poster {
+	position: relative;
+	overflow: hidden;
+}
+.movie-poster::after {
+	content: "";
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 50%;
+	background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+	opacity: 0;
+	transition: opacity 0.3s ease;
+}
+.movie-card:hover .movie-poster::after {
+	opacity: 1;
+}
+.movie-card:hover .hover-info {
+	opacity: 1;
+}
+.hover-info {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	padding: 10px;
+	opacity: 0;
+	transition: opacity 0.3s ease;
+	z-index: 1;
+}
+.custom-scrollbar::-webkit-scrollbar {
+	width: 6px;
+	height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+	background: rgba(255, 255, 255, 0.1);
+	border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+	background: rgba(255, 255, 255, 0.2);
+	border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+	background: rgba(255, 255, 255, 0.3);
+}
+.trending-card {
+	transition: all 0.3s ease;
+}
+.trending-card:hover {
+	transform: scale(1.05);
+}
+.trending-card:hover .trending-overlay {
+	opacity: 1;
+}
+.trending-overlay {
+	opacity: 0;
+	transition: opacity 0.3s ease;
+}
+
+::-webkit-scrollbar {
+	width: 6px;
+	height: 6px;
+}
+::-webkit-scrollbar-track {
+	background: rgba(255, 255, 255, 0.1);
+	border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+	background: rgba(255, 255, 255, 0.2);
+	border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+	background: rgba(255, 255, 255, 0.3);
 }

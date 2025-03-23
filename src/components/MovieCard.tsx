@@ -1,23 +1,9 @@
-export type MovieInfo = {
-	adult: boolean;
-	backdrop_path: string;
-	genre_ids: number[];
-	id: number;
-	original_language: string;
-	original_title: string;
-	overview: string;
-	popularity: number;
-	poster_path: string;
-	release_date: Date;
-	title: string;
-	video: boolean;
-	vote_average: number;
-	vote_count: number;
-};
+import { Link } from "react-router-dom";
+import { Movie } from "../../public/types/movie";
 
 function MovieCard({
 	movie: {
-		// id,
+		id,
 		title,
 		poster_path,
 		vote_average,
@@ -25,13 +11,15 @@ function MovieCard({
 		release_date,
 	},
 }: {
-	movie: MovieInfo;
+	movie: Movie;
 }) {
 	const poster_url: string = `https://image.tmdb.org/t/p/w500/${poster_path}`;
 	const noPoster_url: string = `./no-movie.png`;
 	return (
 		<div className="movie-card">
+			<Link to={`/movieDetails/${id}`}>
 			<img src={poster_path ? poster_url : noPoster_url} alt={title} />
+			</Link>
 			<div className="mt-4">
 				<h3>{title}</h3>
 

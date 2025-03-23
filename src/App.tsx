@@ -2,8 +2,12 @@ import { useState, useEffect } from "react";
 import Search from "./components/Search";
 import ErrorMsg from "./components/ErrorMsg";
 import Loading from "./components/Loading";
-import MovieCard, { MovieInfo } from "./components/MovieCard";
-
+import { Movie } from "../public/types/movie";
+import MovieCard from "./components/MovieCard";
+import { Routes, Route } from "react-router-dom";
+import MovieDetails from "./components/MovieDetails";
+import { FilterContext } from "./components/Contexts/FilterContext";
+import { MovieDetailsContext } from "./components/Contexts/MovieDetailsContext";
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const API_BASE_URL: string = `https://api.themoviedb.org/3`;
 const API_OPTIONS = {
@@ -22,13 +26,15 @@ function App() {
 	});
 
 	const [isLoading, setIsLoading] = useState<boolean>(false);
-	const [moviesList, setMoviesList] = useState<MovieInfo[]>([]);
+	const [moviesList, setMoviesList] = useState<Movie[]>([]);
+	const [filters, setFilters] = useState<string[]>([]);
+	const [movieID, setMovieID] = useState<string>("");
+	const [movieDetails, setMovieDetails] = useState<Movie>({} as Movie);
 
-	async function fetchMovies(query?: string): Promise<void> {
+	const fetchMovies = async (query?: string) => {
 		setIsLoading(true);
 		try {
 			let endPoint: string;
-
 			if (query)
 				endPoint = `${API_BASE_URL}/search/movie?query=${query}&include_adult=false&language=en-US&page=1&include_video=false`;
 			else
@@ -51,13 +57,45 @@ function App() {
 		} finally {
 			setIsLoading(false);
 		}
-	}
+	};
+	const getMovieID = (id: string) => setMovieID(id);
+	const fetchMovieDetails = async () => {
+		if (!movieID) return;
+		const endPoint: string = `${API_BASE_URL}/movie/${movieID}?api_key=${TMDB_API_KEY}&language=en-US`;
+		const response = await fetch(endPoint, API_OPTIONS);
+		const data = await response.json();
+		if (response.ok && response.status === 200) {
+			setMovieDetails(data);
+		} else
+			setErrorMsg({
+				title: "something went wrong",
+				body: data.status_message,
+			});
+	};
+
 	useEffect(() => {
 		fetchMovies(searchTerm);
 	}, [searchTerm]);
 
+	useEffect(() => {}, [filters]);
+
+	useEffect(() => {
+		fetchMovieDetails();
+	}, [movieID]);
 	return (
 		<main>
+			<Routes>
+				{/* <Route path="/" element={<App />}> */}
+				<Route
+					path="/movieDetails/:movieID"
+					element={
+						<MovieDetailsContext.Provider value={movieDetails}>
+							<MovieDetails passMovieID={getMovieID} />
+						</MovieDetailsContext.Provider>
+					}
+				/>
+				{/* </Route> */}
+			</Routes>
 			<div className="pattern">
 				<div className=" wrapper">
 					<header>
@@ -66,15 +104,16 @@ function App() {
 							Find <span className="text-gradient">Movies</span> You'll Enjoy
 							Without the Hassle
 						</h1>
-
-						<Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+						<FilterContext.Provider value={{ filters, setFilters }}>
+							<Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+						</FilterContext.Provider>
 					</header>{" "}
 					<ErrorMsg title={errorMsg.title} body={errorMsg.body} />
 					<h2 className="ml-10">All Movies</h2>
 					<section className="all-movies">
 						<Loading isLoading={isLoading} />
-						{moviesList.map((movie: MovieInfo) => (
-							<MovieCard key={movie.id} movie={movie as MovieInfo} />
+						{moviesList.map((movie: Movie) => (
+							<MovieCard key={movie.id} movie={movie as Movie} />
 						))}
 					</section>
 				</div>
