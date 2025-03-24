@@ -1,8 +1,10 @@
 export type Movie = {
 	adult: boolean;
 	backdrop_path: string;
-	genre_ids: number[];
+	budget: number;
+	genres: { id: number; name: string }[];
 	id: number;
+	original_country: string[];
 	original_language: string;
 	original_title: string;
 	overview: string;
@@ -13,4 +15,7 @@ export type Movie = {
 	video: boolean;
 	vote_average: number;
 	vote_count: number;
+	runtime: number;
+	tagline: string;
+	status: string;
 };

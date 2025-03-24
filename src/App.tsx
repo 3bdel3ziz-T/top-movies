@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Search from "./components/Search";
-import ErrorMsg from "./components/ErrorMsg";
+// import ErrorMsg from "./components/ErrorMsg";
 import Loading from "./components/Loading";
 import { Movie } from "../public/types/movie";
 import MovieCard from "./components/MovieCard";
@@ -8,6 +8,9 @@ import { Routes, Route } from "react-router-dom";
 import MovieDetails from "./components/MovieDetails";
 import { FilterContext } from "./components/Contexts/FilterContext";
 import { MovieDetailsContext } from "./components/Contexts/MovieDetailsContext";
+import { ToastContext } from "./components/Contexts/ToastContext";
+import Toast from "./components/Toast";
+import { ToastMsg } from "../public/types/toast";
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const API_BASE_URL: string = `https://api.themoviedb.org/3`;
 const API_OPTIONS = {
@@ -20,16 +23,16 @@ const API_OPTIONS = {
 
 function App() {
 	const [searchTerm, setSearchTerm] = useState<string>("");
-	const [errorMsg, setErrorMsg] = useState<{ title: string; body: string }>({
-		title: "",
-		body: "",
-	});
 
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [moviesList, setMoviesList] = useState<Movie[]>([]);
 	const [filters, setFilters] = useState<string[]>([]);
 	const [movieID, setMovieID] = useState<string>("");
 	const [movieDetails, setMovieDetails] = useState<Movie>({} as Movie);
+	const [toastMsg, setToastMsg] = useState<ToastMsg[]>([
+		{ type: "SUCCESS", title: "", body: "" },
+		{ type: "SUCCESS", title: "", body: "" },
+	]);
 
 	const fetchMovies = async (query?: string) => {
 		setIsLoading(true);
@@ -44,21 +47,14 @@ function App() {
 			const data = await response.json();
 			if (response.ok && response.status === 200) {
 				setMoviesList(data.results);
-			} else
-				setErrorMsg({
-					title: "something went wrong",
-					body: data.status_message,
-				});
+			} else console.error(`ERROR:${data.status_message}`);
+			//
 		} catch (error) {
-			setErrorMsg({
-				title: "something went wrong",
-				body: (error as string) || "Something went wrong!",
-			});
+			console.error(`ERROR:${error}`);
 		} finally {
 			setIsLoading(false);
 		}
 	};
-	const getMovieID = (id: string) => setMovieID(id);
 	const fetchMovieDetails = async () => {
 		if (!movieID) return;
 		const endPoint: string = `${API_BASE_URL}/movie/${movieID}?api_key=${TMDB_API_KEY}&language=en-US`;
@@ -66,11 +62,12 @@ function App() {
 		const data = await response.json();
 		if (response.ok && response.status === 200) {
 			setMovieDetails(data);
-		} else
-			setErrorMsg({
-				title: "something went wrong",
-				body: data.status_message,
-			});
+			setToastMsg([
+				...toastMsg,
+				{ type: "SUCCESS", title: "Success", body: data.title },
+			]);
+		} else console.error(`ERROR:${data.status_message}`);
+		//
 	};
 
 	useEffect(() => {
@@ -82,6 +79,13 @@ function App() {
 	useEffect(() => {
 		fetchMovieDetails();
 	}, [movieID]);
+
+	const MoviesListTSX = useMemo(() => {
+		return moviesList.map((movie: Movie) => (
+			<MovieCard key={movie.id} movie={movie as Movie} />
+		));
+	}, [moviesList]);
+
 	return (
 		<main>
 			<Routes>
@@ -90,7 +94,7 @@ function App() {
 					path="/movieDetails/:movieID"
 					element={
 						<MovieDetailsContext.Provider value={movieDetails}>
-							<MovieDetails passMovieID={getMovieID} />
+							<MovieDetails passMovieID={setMovieID} />
 						</MovieDetailsContext.Provider>
 					}
 				/>
@@ -108,16 +112,17 @@ function App() {
 							<Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 						</FilterContext.Provider>
 					</header>{" "}
-					<ErrorMsg title={errorMsg.title} body={errorMsg.body} />
+					{/* <ErrorMsg title={errorMsg.title} body={errorMsg.body} /> */}
 					<h2 className="ml-10">All Movies</h2>
 					<section className="all-movies">
 						<Loading isLoading={isLoading} />
-						{moviesList.map((movie: Movie) => (
-							<MovieCard key={movie.id} movie={movie as Movie} />
-						))}
+						{MoviesListTSX}
 					</section>
 				</div>
 			</div>
+			<ToastContext.Provider value={toastMsg}>
+				<Toast />
+			</ToastContext.Provider>
 		</main>
 	);
 }
