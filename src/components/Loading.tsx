@@ -1,7 +1,7 @@
 function Loading({ isLoading }: { isLoading: boolean }) {
 	if (isLoading) {
 		return (
-			<div className="overlay">
+			<div className="backLay">
 				<svg
 					viewBox="25 25 50 50 "
 					className="w-18 origin-center animate-spin duration-[2000ms] ease-in-out"

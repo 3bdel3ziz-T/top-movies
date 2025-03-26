@@ -70,7 +70,7 @@
 
 @layer components {
 	.pattern {
-		@apply bg-hero-pattern w-full h-screen bg-center bg-cover absolute z-0;
+		@apply bg-hero-pattern w-full h-screen bg-center bg-cover absolute left-0 top-0 z-0;
 	}
 
 	.wrapper {
@@ -159,13 +159,13 @@
 			@apply text-gray-100 font-medium text-base;
 		}
 	}
+	.backLay {
+		@apply bg-black/25 flex items-center justify-center fixed z-50 top-0 left-0 w-dvw h-dvh;
+	}
 }
 
 @utility text-gradient {
 	@apply bg-linear-to-r from-[#D6C7FF] to-[#AB8BFF] bg-clip-text text-transparent;
-}
-@utility backLay {
-	@apply bg-black/25 flex items-center justify-center fixed z-50 top-0 left-0 w-dvw h-dvh;
 }
 
 @utility fancy-text {

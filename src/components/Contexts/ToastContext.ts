@@ -1,4 +1,15 @@
-import { createContext } from "react";
-import { ToastMsg } from "../../../public/types/toast";
+import { createContext } from 'react';
+import { ToastMsg } from '../../../public/types/toast';
 
-export const ToastContext = createContext<ToastMsg[]>([] as ToastMsg[]);
+const ToastContext = createContext<{
+  toastMsgs: ToastMsg[],
+  toastDispatch: React.Dispatch<{
+    type: "ERROR" | "SUCCESS";
+    payload: { title: string; body: string };
+  }>;
+}>({
+  toastMsgs: [],
+  toastDispatch: () => { },
+});
+
+export default ToastContext;

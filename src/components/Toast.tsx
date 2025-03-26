@@ -1,13 +1,13 @@
-import { useContext } from "react";
-import { ToastContext } from "./Contexts/ToastContext";
 import { ToastMsg } from "../../public/types/toast";
 
-const Toast = () => {
-	const toastMsgs: ToastMsg[] = useContext(ToastContext);
+
+const Toast = ({ toasts }: { toasts: ToastMsg[] }) => {
+	
+	// const toastMsgs: ToastMsg[] = useContext(ToastContext);
 	// const removeToastMsg = (index: number) => toastMsgs.splice(index, 1);
 	return (
 		<div className="fixed bottom-10 right-10 flex flex-col gap-3">
-			{/* {toastMsgs.map((msg: ToastMsg, index: number) => (
+			{toasts.map((msg: ToastMsg, index: number) => (
 				<div
 					key={index}
 					className="z-50 w-[380px] flex flex-col gap-3 font-medium h-auto bg-red-100 p-3 rounded-xl"
@@ -34,7 +34,7 @@ const Toast = () => {
 						</div>
 					</div>
 				</div>
-			))} */}
+			))}
 		</div>
 	);
 };
