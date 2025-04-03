@@ -3,12 +3,15 @@ import { Movie } from "../../../public/types/movie";
 import { useParams } from "react-router-dom";
 import { useLoading } from "./LoadingContext";
 import FetchData from "../api/fetchData";
+import { useToastContext } from "./ToastContext";
+
 const MovieDetailsContext = createContext<{
 	movieDetails: Movie;
 	setMovieDetails: (movie: Movie) => void;
 }>({ movieDetails: {} as Movie, setMovieDetails: () => {} });
 
 const MovieDetailsProvider = ({ children }: { children: React.ReactNode }) => {
+	const { setToastMsgs } = useToastContext();
 	const [movieDetails, setMovieDetails] = useState({} as Movie); // Replace with actual movie data
 
 	const { movieID } = useParams<{ movieID: string }>();
@@ -22,9 +25,13 @@ const MovieDetailsProvider = ({ children }: { children: React.ReactNode }) => {
 				setMovieDetails(data);
 				setLoading(false);
 			})
-			.catch((error: Error) => {
+			.catch((error) => {
 				setLoading(false);
-				console.error("Error fetching movie details:", error);
+				setToastMsgs({
+					type: "ERROR",
+					title: "Error",
+					body: error.message,
+				});
 			});
 	}, [movieID]);
 	return (

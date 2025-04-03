@@ -1,19 +1,48 @@
 import { Movie } from "../../public/types/movie";
 import { useNavigate } from "react-router-dom";
 import { useMovieDetailsContext } from "./Contexts/MovieDetailsContext";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useToastContext } from "./Contexts/ToastContext";
+import fetchData from "./api/fetchData";
 function MovieDetails() {
+	const [recommendedMovies, setRecommendedMovies] = useState<Movie[]>([]);
 	const navigate = useNavigate();
 	const movie: Movie = useMovieDetailsContext().movieDetails;
-//handle if movie is not found
+	const { setToastMsgs } = useToastContext();
+	console.log(movie);
+	//handle if movie is not found
 	useEffect(() => {
+		if (movie.id) {
+			fetchData("recommendations", {
+				genresID: movie.genres[0].id,
+			})
+				.then((data) => {
+					setRecommendedMovies((data.results as Movie[]).slice(0, 6));
+				})
+				.catch((error: Error) => {
+					setToastMsgs({
+						type: "ERROR",
+						title: "Error",
+						body: error.message,
+					});
+				});
+		}
+		//back to home page if movie is not found
 		const handler = setTimeout(() => {
-			if (!movie.id) navigate("/");
-		}, 500);
+			if (!movie.id) {
+				navigate("/");
+				setToastMsgs({
+					type: "ERROR",
+					title: "Error",
+					body: "It took so much time to load the movie details, please try again",
+				});
+			}
+		}, 1500);
 		return () => {
 			clearTimeout(handler);
 		};
 	}, [movie]);
+	//fetch recommended movies
 	return (
 		<div className="backLay md:px-10">
 			{JSON.stringify(movie.id) && (
@@ -66,9 +95,11 @@ function MovieDetails() {
 											{movie.title}
 										</h1>
 										{/* <!-- Adult content badge --> */}
-										<span className="bg-red-600 text-white text-xs px-2 py-1 rounded mr-2">
-											+18
-										</span>
+										{movie.adult ? (
+											<span className="bg-red-600 text-white text-xs px-2 py-1 rounded mr-2">
+												+18
+											</span>
+										) : null}
 									</div>
 
 									{/* <!-- Original title (if different) --> */}
@@ -150,225 +181,67 @@ function MovieDetails() {
 								</div>
 							</div>
 							{/* <!-- Recommended Movies Section --> */}
-							<div className="lg:w-1/3 hidden md:block">
-								<div className="bg-gray-800/60 backdrop-blur-sm rounded-xl p-4 border border-gray-700/50">
-									<div className="flex items-center justify-between mb-4">
-										<h2 className="text-xl font-bold">Recommended</h2>
-									</div>
-
-									<p className="text-xs text-gray-400 mb-4">
+							<div className="w-full lg:w-2/6">
+								<div className="bg-gray-800/60 backdrop-blur-sm rounded-xl p-4 border border-gray-700/50 ">
+									<h2 className="text-xl font-bold mb-4">Recommended</h2>
+									<p className="text-xs  text-gray-400 mb-4">
 										Based on your viewing history and preferences
 									</p>
-
 									{/* <!-- Scrollable movie list --> */}
 									<div
-										className="overflow-y-auto custom-scrollbar pr-2"
+										className="overflow-y-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 custom-scrollbar w-full pr-2"
 										style={{ maxHeight: "calc(70vh - 180px)" }}
 									>
-										{/* <!-- Movie Card 1 --> */}
-										<div className="movie-card bg-gray-800/60 backdrop-blur-sm border border-gray-700/50 rounded-lg overflow-hidden mb-4 shadow-lg">
-											<div className="flex">
-												<div className="movie-poster w-1/3 relative">
-													<img
-														alt="Inception"
-														className="w-full h-full object-cover"
-													/>
-													<div className="hover-info">
-														<button className="bg-primary/80 hover:bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center">
-															<i className="bx bx-play"></i>
-														</button>
-													</div>
-												</div>
-												<div className="w-2/3 p-3">
-													<div className="flex items-center justify-between">
-														<h3 className="font-bold text-sm">Inception</h3>
-														<div className="flex items-center">
-															<i className="bx bxs-star text-yellow-400 text-xs"></i>
-															<span className="text-xs ml-1">8.8</span>
+										{/* <!-- Movie Card --> */}
+										{recommendedMovies.map((movie: Movie, index: number) => (
+											<div
+												key={index}
+												className="movie-card w-full bg-gray-800/60 backdrop-blur-sm border border-gray-700/50 rounded-lg overflow-hidden mb-4 shadow-lg"
+											>
+												<div className="flex">
+													<div className="movie-poster w-1/3 relative">
+														<img
+															alt={movie.title}
+															className="w-full h-full object-cover"
+															src={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
+														/>
+														<div className="hover-info">
+															<button className="bg-primary/80 hover:bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center">
+																<i className="bx bx-play"></i>
+															</button>
 														</div>
 													</div>
-													<p className="text-xs text-gray-400 mt-1">
-														2010 | 148 min
-													</p>
-													<div className="mt-2 flex flex-wrap gap-1">
-														<span className="text-[10px] bg-gray-600/80 px-2 py-0.5 rounded-full">
-															Sci-Fi
-														</span>
-														<span className="text-[10px] bg-gray-600/80 px-2 py-0.5 rounded-full">
-															Action
-														</span>
-													</div>
-													<p className="text-xs text-gray-400 mt-2 line-clamp-2">
-														A thief who steals corporate secrets through the use
-														of dream-sharing technology.
-													</p>
-												</div>
-											</div>
-										</div>
-
-										{/* <!-- Movie Card 2 --> */}
-										<div className="movie-card bg-gray-800/60 backdrop-blur-sm border border-gray-700/50 rounded-lg overflow-hidden mb-4 shadow-lg">
-											<div className="flex">
-												<div className="movie-poster w-1/3 relative">
-													<img
-														alt="The Martian"
-														className="w-full h-full object-cover"
-													/>
-													<div className="hover-info">
-														<button className="bg-primary/80 hover:bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center">
-															<i className="bx bx-play"></i>
-														</button>
-													</div>
-												</div>
-												<div className="w-2/3 p-3">
-													<div className="flex items-center justify-between">
-														<h3 className="font-bold text-sm">The Martian</h3>
-														<div className="flex items-center">
-															<i className="bx bxs-star text-yellow-400 text-xs"></i>
-															<span className="text-xs ml-1">8.0</span>
+													<div className="w-2/3 p-3">
+														<div className="flex items-center justify-between">
+															<h3 className="font-bold text-sm">
+																{movie.title} | {movie.original_title}
+															</h3>
+															<div className="flex items-center">
+																<i className="bx bxs-star text-yellow-400 text-xs"></i>
+																<span className="text-xs ml-1">
+																	{movie.vote_average}
+																</span>
+															</div>
 														</div>
-													</div>
-													<p className="text-xs text-gray-400 mt-1">
-														2015 | 144 min
-													</p>
-													<div className="mt-2 flex flex-wrap gap-1">
-														<span className="text-[10px] bg-gray-600/80 px-2 py-0.5 rounded-full">
-															Sci-Fi
-														</span>
-														<span className="text-[10px] bg-gray-600/80 px-2 py-0.5 rounded-full">
-															Adventure
-														</span>
-													</div>
-													<p className="text-xs text-gray-400 mt-2 line-clamp-2">
-														An astronaut becomes stranded on Mars and must find
-														a way to survive.
-													</p>
-												</div>
-											</div>
-										</div>
-
-										{/* <!-- Movie Card 3 --> */}
-										<div className="movie-card bg-gray-800/60 backdrop-blur-sm border border-gray-700/50 rounded-lg overflow-hidden mb-4 shadow-lg">
-											<div className="flex">
-												<div className="movie-poster w-1/3 relative">
-													<img
-														alt="Gravity"
-														className="w-full h-full object-cover"
-													/>
-													<div className="hover-info">
-														<button className="bg-primary/80 hover:bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center">
-															<i className="bx bx-play"></i>
-														</button>
-													</div>
-												</div>
-												<div className="w-2/3 p-3">
-													<div className="flex items-center justify-between">
-														<h3 className="font-bold text-sm">Gravity</h3>
-														<div className="flex items-center">
-															<i className="bx bxs-star text-yellow-400 text-xs"></i>
-															<span className="text-xs ml-1">7.7</span>
+														<p className="text-xs text-gray-400 mt-1">
+															{JSON.stringify(movie.release_date)} |{" "}
+															{movie.runtime} min
+														</p>
+														<div className="mt-2 flex flex-wrap gap-1">
+															<span className="text-[10px] bg-gray-600/80 px-2 py-0.5 rounded-full">
+																Sci-Fi
+															</span>
+															<span className="text-[10px] bg-gray-600/80 px-2 py-0.5 rounded-full">
+																{movie.tagline ? movie.tagline[0] : ""}
+															</span>
 														</div>
+														<p className="text-xs text-gray-400 mt-2 line-clamp-2">
+															{movie.overview}
+														</p>
 													</div>
-													<p className="text-xs text-gray-400 mt-1">
-														2013 | 91 min
-													</p>
-													<div className="mt-2 flex flex-wrap gap-1">
-														<span className="text-[10px] bg-gray-600/80 px-2 py-0.5 rounded-full">
-															Sci-Fi
-														</span>
-														<span className="text-[10px] bg-gray-600/80 px-2 py-0.5 rounded-full">
-															Thriller
-														</span>
-													</div>
-													<p className="text-xs text-gray-400 mt-2 line-clamp-2">
-														Two astronauts work together to survive after a
-														catastrophe destroys their shuttle.
-													</p>
 												</div>
 											</div>
-										</div>
-
-										{/* <!-- Movie Card 4 --> */}
-										<div className="movie-card bg-gray-800/60 backdrop-blur-sm border border-gray-700/50 rounded-lg overflow-hidden mb-4 shadow-lg">
-											<div className="flex">
-												<div className="movie-poster w-1/3 relative">
-													<img
-														alt="Arrival"
-														className="w-full h-full object-cover"
-													/>
-													<div className="hover-info">
-														<button className="bg-primary/80 hover:bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center">
-															<i className="bx bx-play"></i>
-														</button>
-													</div>
-												</div>
-												<div className="w-2/3 p-3">
-													<div className="flex items-center justify-between">
-														<h3 className="font-bold text-sm">Arrival</h3>
-														<div className="flex items-center">
-															<i className="bx bxs-star text-yellow-400 text-xs"></i>
-															<span className="text-xs ml-1">7.9</span>
-														</div>
-													</div>
-													<p className="text-xs text-gray-400 mt-1">
-														2016 | 116 min
-													</p>
-													<div className="mt-2 flex flex-wrap gap-1">
-														<span className="text-[10px] bg-gray-600/80 px-2 py-0.5 rounded-full">
-															Sci-Fi
-														</span>
-														<span className="text-[10px] bg-gray-600/80 px-2 py-0.5 rounded-full">
-															Drama
-														</span>
-													</div>
-													<p className="text-xs text-gray-400 mt-2 line-clamp-2">
-														A linguist works with the military to communicate
-														with alien lifeforms.
-													</p>
-												</div>
-											</div>
-										</div>
-
-										{/* <!-- Movie Card 5 --> */}
-										<div className="movie-card bg-gray-800/60 backdrop-blur-sm border border-gray-700/50 rounded-lg overflow-hidden mb-4 shadow-lg">
-											<div className="flex">
-												<div className="movie-poster w-1/3 relative">
-													<img
-														alt="Dune"
-														className="w-full h-full object-cover"
-													/>
-													<div className="hover-info">
-														<button className="bg-primary/80 hover:bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center">
-															<i className="bx bx-play"></i>
-														</button>
-													</div>
-												</div>
-												<div className="w-2/3 p-3">
-													<div className="flex items-center justify-between">
-														<h3 className="font-bold text-sm">Dune</h3>
-														<div className="flex items-center">
-															<i className="bx bxs-star text-yellow-400 text-xs"></i>
-															<span className="text-xs ml-1">8.1</span>
-														</div>
-													</div>
-													<p className="text-xs text-gray-400 mt-1">
-														2021 | 155 min
-													</p>
-													<div className="mt-2 flex flex-wrap gap-1">
-														<span className="text-[10px] bg-gray-600/80 px-2 py-0.5 rounded-full">
-															Sci-Fi
-														</span>
-														<span className="text-[10px] bg-gray-600/80 px-2 py-0.5 rounded-full">
-															Adventure
-														</span>
-													</div>
-													<p className="text-xs text-gray-400 mt-2 line-clamp-2">
-														A noble family becomes embroiled in a war for
-														control over the galaxy's most valuable resource.
-													</p>
-												</div>
-											</div>
-										</div>
+										))}
 									</div>
 								</div>
 							</div>

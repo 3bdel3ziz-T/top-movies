@@ -9,8 +9,8 @@ const API_OPTIONS = {
 };
 
 const FetchData = async (
-	type: "search" | "discover" | "movieDetails",
-	params: { query?: string; movieID?: string; searchTxt?: string }
+	type: "search" | "discover" | "movieDetails" | "recommendations",
+	params: { query?: string; movieID?: string; searchTxt?: string, genresID?: number } = {}
 ) => {
 	let endPoint: string;
 	switch (type) {
@@ -22,6 +22,9 @@ const FetchData = async (
 			break;
 		case "movieDetails":
 			endPoint = `${API_BASE_URL}/movie/${params.movieID}?api_key=${TMDB_API_KEY}&language=en-US`;
+			break;
+		case "recommendations":
+			endPoint = `${API_BASE_URL}/discover/movie?api_key=YOUR_TMDB_API_KEY&with_genres=${params.genresID}`
 			break;
 		default:
 			throw new Error("Invalid type provided for fetchData");
