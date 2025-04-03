@@ -9,17 +9,9 @@ import { FilterContext } from "./components/Contexts/FilterContext";
 import Toast from "./components/Toast";
 import ToastContext from "./components/Contexts/ToastContext";
 import reducer from "./components/Reducers/ToastReducer";
-import { useLoading } from "./components/Contexts/LoadingContext";
 import { MovieDetailsProvider } from "./components/Contexts/MovieDetailsContext";
-const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
-const API_BASE_URL: string = `https://api.themoviedb.org/3`;
-const API_OPTIONS = {
-	method: "GET",
-	headers: {
-		accept: "application/json",
-		Authorization: `Bearer ${TMDB_API_KEY}`,
-	},
-};
+import FetchData from "./components/api/fetchData";
+import { useLoading } from "./components/Contexts/LoadingContext";
 
 function App() {
 	const { setLoading } = useLoading();
@@ -31,35 +23,34 @@ function App() {
 
 	const [toastMsgs, toastDispatch] = useReducer(reducer, []);
 
-	//fetch all movies and search movies
-	const fetchMovies = async (query?: string) => {
-		setLoading(true);
-		try {
-			let endPoint: string;
-			if (query)
-				endPoint = `${API_BASE_URL}/search/movie?query=${query}&include_adult=false&language=en-US&page=1&include_video=false`;
-			else
-				endPoint = `${API_BASE_URL}/discover/movie?sort_by=popularity.desc&include_adult=false&include_video=false&page=1`;
-
-			const response = await fetch(endPoint, API_OPTIONS);
-			const data = await response.json();
-			if (response.ok && response.status === 200) {
-				setMoviesList(data.results);
-			} else
-				toastDispatch({
-					type: "ERROR",
-					payload: { title: "Error", body: data.status_message },
-				});
-		} catch (error) {
-			console.error(`ERROR:${error}`);
-		} finally {
-			setLoading(false);
-		}
-	};
-	//fetch movie details with movieID
-
 	useEffect(() => {
-		fetchMovies(searchTerm);
+		setLoading(true);
+		if (searchTerm.length > 0) {
+			FetchData("search", { searchTxt: searchTerm }).then(
+				(data: {
+					page: number;
+					results: [];
+					total_pages: number;
+					total_results: number;
+				}) => {
+					setMoviesList(data.results);
+					setLoading(false);
+				}
+			);
+			return;
+		}
+		FetchData("discover", {}).then(
+			(data: {
+				page: number;
+				results: [];
+				total_pages: number;
+				total_results: number;
+			}) => {
+				setMoviesList(data.results);
+				setLoading(false);
+			}
+		);
+		return () => {};
 	}, [searchTerm]);
 
 	useEffect(() => {}, [filters]);
