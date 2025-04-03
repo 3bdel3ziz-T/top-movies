@@ -65,6 +65,7 @@ function App() {
 	useEffect(() => {}, [filters]);
 
 	const MoviesListTSX = useMemo(() => {
+		if (moviesList.length === 0) return [];
 		return moviesList.map((movie: Movie) => (
 			<MovieCard key={movie.id} movie={movie as Movie} />
 		));
@@ -98,9 +99,13 @@ function App() {
 							</FilterContext.Provider>
 						</header>{" "}
 						<h2 className="ml-10">All Movies</h2>
+						<Loading />
 						<section className="all-movies">
-							<Loading />
-							{MoviesListTSX}
+							{Array.from(MoviesListTSX).length > 0 ? (
+								MoviesListTSX
+							) : (
+								<h1 className="text-center col-span-full">No Movies Found</h1>
+							)}
 						</section>
 					</div>
 				</div>
