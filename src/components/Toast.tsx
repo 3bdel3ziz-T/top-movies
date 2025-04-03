@@ -1,16 +1,13 @@
 import { ToastMsg } from "../../public/types/toast";
 
-
 const Toast = ({ toasts }: { toasts: ToastMsg[] }) => {
 	
-	// const toastMsgs: ToastMsg[] = useContext(ToastContext);
-	// const removeToastMsg = (index: number) => toastMsgs.splice(index, 1);
 	return (
-		<div className="fixed bottom-10 right-10 flex flex-col gap-3">
+		<div className="fixed bottom-10 right-10 flex flex-col gap-3 overflow-hidden overflow-y-auto max-h-80">
 			{toasts.map((msg: ToastMsg, index: number) => (
 				<div
 					key={index}
-					className="z-50 w-[380px] flex flex-col gap-3 font-medium h-auto bg-red-100 p-3 rounded-xl"
+					className="animate-toast-show z-50 w-[380px] flex flex-col gap-3 font-medium h-auto bg-red-100 p-3 rounded-xl"
 				>
 					<div className="flex flex-row gap-3">
 						<svg

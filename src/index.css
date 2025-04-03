@@ -38,6 +38,48 @@
 			stroke-dashoffset: -100px;
 		}
 	}
+	--animate-appear: appear 0.5s ease-in-out 0s 1;
+	--animate-disappear: appear 0.5s ease-in-out 0s reverse 1;
+	@keyframes appear {
+		from {
+			opacity: 0;
+			filter: blur(10px);
+			transform: translateX(20px) scale(0.9);
+		}
+		to {
+			opacity: 1;
+			filter: blur(0);
+			transform: translateX(0) scale(1);
+		}
+	}
+	--animate-toast-show: toast 0.4s ease-in-out 0s 1;
+	--animate-toast-hide: toast-hide 0.4s ease-in-out 0s 1;
+	@keyframes toast {
+		from {
+			transform: translateY(100%);
+			filter: blur(3px);
+		}
+		80% {
+			transform: translateY(0);
+			filter: blur(0);
+		}
+		90% {
+			transform: translateY(10%);
+		}
+		to {
+			transform: translateY(0);
+		}
+	}
+	@keyframes toast-hide {
+		90% {
+			transform: scale(1.1);
+			filter: blur(5px);
+		}
+		to {
+			transform: scale(0);
+			filter: blur(5px);
+		}
+	}
 }
 
 @layer base {
@@ -102,7 +144,7 @@
 
 		& .search-container {
 			@apply h-12 flex flex-row gap-4 justify-center items-center;
-		}	
+		}
 
 		& img {
 			@apply absolute bottom-[0.8rem] left-3 h-5 w-5;

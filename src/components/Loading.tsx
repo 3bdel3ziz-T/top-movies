@@ -1,5 +1,10 @@
-function Loading({ isLoading }: { isLoading: boolean }) {
-	if (isLoading) {
+import { useLoading } from "./Contexts/LoadingContext";
+
+function Loading() {
+	const {isLoading} = useLoading()
+	if (
+		isLoading
+	) {
 		return (
 			<div className="backLay">
 				<svg

@@ -1,4 +1,4 @@
-import { createContext } from 'react';
+import { createContext, useContext } from 'react';
 import { ToastMsg } from '../../../public/types/toast';
 
 const ToastContext = createContext<{
@@ -11,5 +11,15 @@ const ToastContext = createContext<{
   toastMsgs: [],
   toastDispatch: () => { },
 });
+
+export const useToastContext = () => {
+  const context = useContext(ToastContext);
+  if (!context) {
+    throw new Error(
+      "useToastContext must be used within a ToastProvider"
+    );
+  }
+  return context;
+};
 
 export default ToastContext;

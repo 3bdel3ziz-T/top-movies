@@ -1,19 +1,23 @@
 import { Movie } from "../../public/types/movie";
 import { useNavigate } from "react-router-dom";
-import { useContext, useEffect } from "react";
-import { useParams } from "react-router";
-import { MovieDetailsContext } from "./Contexts/MovieDetailsContext";
-function MovieDetails({ passMovieID }: { passMovieID: (id: string) => void }) {
-	const { movieID } = useParams();
-	useEffect(() => {
-		passMovieID(movieID!);
-	}, [movieID]);
+import { useMovieDetailsContext } from "./Contexts/MovieDetailsContext";
+import { useEffect } from "react";
+function MovieDetails() {
 	const navigate = useNavigate();
-	const movie: Movie = useContext(MovieDetailsContext);
+	const movie: Movie = useMovieDetailsContext().movieDetails;
+//handle if movie is not found
+	useEffect(() => {
+		const handler = setTimeout(() => {
+			if (!movie.id) navigate("/");
+		}, 500);
+		return () => {
+			clearTimeout(handler);
+		};
+	}, [movie]);
 	return (
 		<div className="backLay md:px-10">
-			{movieID === JSON.stringify(movie.id) && (
-				<div className="container max-w-6xl relative h-dvh md:h-[80vh] text-gray-100 justify-center bg-primary-2 md:rounded-xl shadow-2xl overflow-hidden z-40">
+			{JSON.stringify(movie.id) && (
+				<div className="container max-w-6xl relative h-dvh md:h-[80vh] text-gray-100 justify-center bg-primary-2 md:rounded-xl shadow-2xl overflow-hidden z-40 animate-appear">
 					<button
 						onClick={() => navigate("/")}
 						className=" relative z-50 cursor-pointer ml-auto text-right size-16 flex justify-center items-center text-4xl border-0 text-gray-200"
@@ -429,5 +433,4 @@ function MovieDetails({ passMovieID }: { passMovieID: (id: string) => void }) {
 		</div>
 	);
 }
-
 export default MovieDetails;

@@ -6,10 +6,11 @@ import MovieCard from "./components/MovieCard";
 import { Routes, Route } from "react-router-dom";
 import MovieDetails from "./components/MovieDetails";
 import { FilterContext } from "./components/Contexts/FilterContext";
-import { MovieDetailsContext } from "./components/Contexts/MovieDetailsContext";
 import Toast from "./components/Toast";
 import ToastContext from "./components/Contexts/ToastContext";
 import reducer from "./components/Reducers/ToastReducer";
+import { useLoading } from "./components/Contexts/LoadingContext";
+import { MovieDetailsProvider } from "./components/Contexts/MovieDetailsContext";
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const API_BASE_URL: string = `https://api.themoviedb.org/3`;
 const API_OPTIONS = {
@@ -21,18 +22,18 @@ const API_OPTIONS = {
 };
 
 function App() {
+	const { setLoading } = useLoading();
 	const [searchTerm, setSearchTerm] = useState<string>("");
 
-	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [moviesList, setMoviesList] = useState<Movie[]>([]);
+
 	const [filters, setFilters] = useState<string[]>([]);
-	const [movieID, setMovieID] = useState<string>("");
-	const [movieDetails, setMovieDetails] = useState<Movie>({} as Movie);
 
 	const [toastMsgs, toastDispatch] = useReducer(reducer, []);
 
+	//fetch all movies and search movies
 	const fetchMovies = async (query?: string) => {
-		setIsLoading(true);
+		setLoading(true);
 		try {
 			let endPoint: string;
 			if (query)
@@ -49,39 +50,19 @@ function App() {
 					type: "ERROR",
 					payload: { title: "Error", body: data.status_message },
 				});
-			//
 		} catch (error) {
 			console.error(`ERROR:${error}`);
 		} finally {
-			setIsLoading(false);
+			setLoading(false);
 		}
 	};
-	const fetchMovieDetails = async () => {
-		if (!movieID) return;
-		setIsLoading(true);
-		const endPoint: string = `${API_BASE_URL}/movie/${movieID}?api_key=${TMDB_API_KEY}&language=en-US`;
-		const response = await fetch(endPoint, API_OPTIONS);
-		const data = await response.json();
-		if (response.ok && response.status === 200) {
-			setMovieDetails(data);
-			setIsLoading(false);
-		} else {
-			toastDispatch({
-				type: "ERROR",
-				payload: { title: "Error", body: data.status_message },
-			});
-			setIsLoading(false);
-		}
-	};
+	//fetch movie details with movieID
+
 	useEffect(() => {
 		fetchMovies(searchTerm);
 	}, [searchTerm]);
 
 	useEffect(() => {}, [filters]);
-
-	useEffect(() => {
-		fetchMovieDetails();
-	}, [movieID]);
 
 	const MoviesListTSX = useMemo(() => {
 		return moviesList.map((movie: Movie) => (
@@ -97,9 +78,9 @@ function App() {
 					<Route
 						path="/movieDetails/:movieID"
 						element={
-							<MovieDetailsContext.Provider value={movieDetails}>
-								<MovieDetails passMovieID={setMovieID} />
-							</MovieDetailsContext.Provider>
+							<MovieDetailsProvider>
+								<MovieDetails />
+							</MovieDetailsProvider>
 						}
 					/>
 					{/* </Route> */}
@@ -118,7 +99,7 @@ function App() {
 						</header>{" "}
 						<h2 className="ml-10">All Movies</h2>
 						<section className="all-movies">
-							<Loading isLoading={isLoading} />
+							<Loading />
 							{MoviesListTSX}
 						</section>
 					</div>
