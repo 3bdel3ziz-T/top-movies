@@ -20,7 +20,7 @@ function App() {
 
 	const [moviesList, setMoviesList] = useState<Movie[]>([]);
 
-	const [filters, setFilters] = useState<string[]>([]);
+	const [filters, setFilters] = useState<{ id: number; name: string }[]>([]);
 
 	useEffect(() => {
 		setLoading(true);
@@ -89,6 +89,15 @@ function App() {
 						<MovieDetailsProvider>
 							<MovieDetails />
 						</MovieDetailsProvider>
+					}
+				/>
+				<Route
+					path="*"
+					element={
+						<main className="flex flex-col justify-center items-center">
+							<h1 className="text-4xl">404</h1>
+							<p className="text-2xl">Page Not Found</p>
+						</main>
 					}
 				/>
 				{/* </Route> */}

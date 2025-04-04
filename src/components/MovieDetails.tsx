@@ -20,7 +20,6 @@ function MovieDetails() {
 					const recommendedMovies = data.results.filter(
 						(m: Movie) => m.id !== movie.id
 					);
-					console.log(recommendedMovies);
 					setRecommendedMovies(recommendedMovies);
 				})
 				.catch((error: Error) => {

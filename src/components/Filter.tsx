@@ -3,7 +3,19 @@ import { FilterContext } from "./Contexts/FilterContext";
 const Filter = () => {
 	const [open, setOpen] = useState(false);
 	const { filters, setFilters } = useContext(FilterContext);
-	const options: string[] = ["adults", "action", "drama", "comedy", "romance"];
+	const options: { id: number; name: string }[] = [
+		{ id: 28, name: "Action" },
+		{ id: 12, name: "Adventure" },
+		{ id: 16, name: "Animation" },
+		{ id: 80, name: "Crime" },
+		{ id: 10751, name: "Family" },
+		{ id: 36, name: "History" },
+		{ id: 10749, name: "Romance" },
+		{ id: 10752, name: "War" },
+		{ id: 35, name: "Comedy" },
+		{ id: 18, name: "Drama" },
+		{ id: 27, name: "Horror" },
+	];
 	return (
 		<div>
 			<button onClick={() => setOpen(!open)}>
@@ -19,30 +31,44 @@ const Filter = () => {
 			<div
 				className={`translate-y-4 ${
 					open ? "flex translate-y-0" : "hidden"
-				} p-3 h-fit absolute duration-150 flex-col md:flex-row gap-2 bg-primary-2 rounded-lg right-0 top-full`}
+				} p-3 h-fit absolute duration-150 grid grid-cols-2 md:grid-cols-3 gap-2 bg-primary-2 rounded-lg right-0 top-full`}
 			>
-				{options.map((option: string) => (
+				{options.map((option: { id: number; name: string }) => (
 					<label
-						className={`${filters.includes(option) ? "bg-primary text-secondary" : ""} flex relative items-center justify-center gap-2 cursor-pointer text-gray-200 text-left duration-150 hover:bg-primary hover:text-secondary py-2 w-full rounded-md px-4`}
-						htmlFor={`${option}`}
-						key={option}
+						className={`${
+							filters.some((item) => item.id === option.id)
+								? "bg-primary text-secondary"
+								: "bg-primary-2"
+						} flex relative items-center active:scale-105 justify-center gap-2 cursor-pointer text-gray-200 text-left duration-150  hover:text-secondary py-2 w-full rounded-md px-4`}
+						htmlFor={`${option.name}`}
+						key={option.id}
 					>
 						<input
 							onChange={(e) => {
 								if (e.target.checked) {
-									setFilters([...filters, option]);
+									setFilters([
+										...filters,
+										{ id: option.id, name: option.name },
+									]);
 								} else {
-									setFilters(filters.filter((filter) => filter !== option));
+									setFilters(filters.filter((item) => item.id !== option.id));
 								}
 							}}
 							type="checkbox"
-							className="accent-purple-600 bg-primary-2"
+							className="hidden"
 							name="option"
-							id={option}
+							id={option.name}
+							value={option.name}
 						/>
-						{option}
+						{option.name}
 					</label>
 				))}
+				<button
+					onClick={() => setFilters([])}
+					className="flex relative items-center active:scale-105 justify-center gap-2 cursor-pointer text-left duration-150 text-secondary py-2 w-full rounded-md px-4"
+				>
+					clear
+				</button>
 			</div>
 		</div>
 	);
