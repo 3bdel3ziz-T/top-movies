@@ -16,8 +16,9 @@ const Filter = () => {
 		{ id: 18, name: "Drama" },
 		{ id: 27, name: "Horror" },
 	];
+	console.log(filters);
 	return (
-		<div>
+		<div className="z-10">
 			<button onClick={() => setOpen(!open)}>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
@@ -34,15 +35,7 @@ const Filter = () => {
 				} p-3 h-fit absolute duration-150 grid grid-cols-2 md:grid-cols-3 gap-2 bg-primary-2 rounded-lg right-0 top-full`}
 			>
 				{options.map((option: { id: number; name: string }) => (
-					<label
-						className={`${
-							filters.some((item) => item.id === option.id)
-								? "bg-primary text-secondary"
-								: "bg-primary-2"
-						} flex relative items-center active:scale-105 justify-center gap-2 cursor-pointer text-gray-200 text-left duration-150  hover:text-secondary py-2 w-full rounded-md px-4`}
-						htmlFor={`${option.name}`}
-						key={option.id}
-					>
+					<div key={option.id}>
 						<input
 							onChange={(e) => {
 								if (e.target.checked) {
@@ -55,13 +48,22 @@ const Filter = () => {
 								}
 							}}
 							type="checkbox"
-							className="hidden"
+							className="hidden peer/option"
 							name="option"
+							checked={filters.some((item) => item.id === option.id)}
 							id={option.name}
 							value={option.name}
 						/>
-						{option.name}
-					</label>
+						<label
+							className={`
+						peer-checked/option:bg-primary peer-checked/option:text-secondary
+						bg-primary-2
+						flex relative items-center active:scale-105 justify-center gap-2 cursor-pointer text-gray-200 text-left duration-150  hover:text-secondary py-2 w-full rounded-md px-4`}
+							htmlFor={`${option.name}`}
+						>
+							{option.name}
+						</label>
+					</div>
 				))}
 				<button
 					onClick={() => setFilters([])}

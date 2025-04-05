@@ -138,14 +138,19 @@ function MovieDetails() {
 								{/* <!-- Genres (from genre_ids) --> */}
 								<div className="flex flex-wrap gap-2 mb-6">
 									{movie.genres &&
-										movie.genres.map((genre: { id: number; name: string }) => (
-											<span
-												key={genre.id}
-												className="bg-gray-800/60 backdrop-blur-sm border border-gray-700/50 text-gray-200 px-3 py-1 rounded-full text-sm"
-											>
-												{genre.name}
-											</span>
-										))}
+										movie.genres.map(
+											(genre: {
+												id: number;
+												name: string;
+											}) => (
+												<span
+													key={genre.id}
+													className="bg-gray-800/60 backdrop-blur-sm border border-gray-700/50 text-gray-200 px-3 py-1 rounded-full text-sm"
+												>
+													{genre.name}
+												</span>
+											)
+										)}
 								</div>
 								{/* <!-- Overview --> */}
 								<div className="mb-6">

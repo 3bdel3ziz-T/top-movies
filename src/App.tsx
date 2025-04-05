@@ -25,7 +25,7 @@ function App() {
 	useEffect(() => {
 		setLoading(true);
 		if (searchTerm.length > 0) {
-			FetchData("search", { searchTxt: searchTerm })
+			FetchData("search", { searchTxt: searchTerm }, filters)
 				.then(
 					(data: {
 						page: number;
@@ -47,7 +47,7 @@ function App() {
 				});
 			return;
 		}
-		FetchData("discover", {})
+		FetchData("discover", {}, filters)
 			.then(
 				(data: {
 					page: number;
@@ -68,21 +68,18 @@ function App() {
 				});
 			});
 		return () => {};
-	}, [searchTerm]);
-
-	useEffect(() => {}, [filters]);
+	}, [searchTerm, filters]);
 
 	const MoviesListTSX = useMemo(() => {
 		if (moviesList.length === 0) return [];
 		return moviesList.map((movie: Movie) => (
 			<MovieCard key={movie.id} movie={movie as Movie} />
 		));
-	}, [moviesList]);
+	}, [moviesList,filters,searchTerm]);
 
 	return (
 		<main>
 			<Routes>
-				{/* <Route path="/" element={<App />}> */}
 				<Route
 					path="/movieDetails/:movieID"
 					element={
