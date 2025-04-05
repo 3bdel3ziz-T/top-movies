@@ -1,9 +1,12 @@
 import { createContext, useContext, useState } from "react";
 import { ToastMsg } from "../../../public/types/toast";
 
-const ToastContext = createContext({
+const ToastContext = createContext<{
+	toastMsgs: ToastMsg[];
+	setToastMsgs: (newToastMsg: ToastMsg) => void;
+}>({
 	toastMsgs: [] as ToastMsg[],
-	setToastMsgs: (newToastMsg: ToastMsg) => {},
+	setToastMsgs: () => {},
 });
 
 const ToastProvider = ({ children }: { children: React.ReactNode }) => {

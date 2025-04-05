@@ -5,7 +5,9 @@ const LoadingContext = createContext<{
 	setLoading: (loading: boolean) => void;
 }>({
 	isLoading: false,
-	setLoading: (loading: boolean) => {},
+	setLoading: (loading: boolean) => {
+		return loading;
+	},
 });
 
 const LoadingProvider = ({ children }: { children: React.ReactNode }) => {
