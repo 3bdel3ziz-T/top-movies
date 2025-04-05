@@ -16,7 +16,6 @@ const Filter = () => {
 		{ id: 18, name: "Drama" },
 		{ id: 27, name: "Horror" },
 	];
-	console.log(filters);
 	return (
 		<div className="z-10">
 			<button onClick={() => setOpen(!open)}>
